@@ -137,4 +137,6 @@ app_vars = ChainMap(os.environ, app_defaults)
 
 #app.install(EnableCors())
 
-app.run(host=app_vars['APP_SERVER_HOST'], port=app_vars['APP_SERVER_PORT'], debug=True)
+port = int(os.environ.get('PORT', 80))
+
+app.run(host=app_vars['APP_SERVER_HOST'], port=port, debug=True)
