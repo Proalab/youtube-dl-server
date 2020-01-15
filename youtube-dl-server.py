@@ -3,11 +3,28 @@ import json
 import os
 import subprocess
 from queue import Queue
-from bottle import route, run, Bottle, request, static_file
-from threading import Thread
+import bottle
+from bottle import route, run, Bottle, request, response, static_file
 import youtube_dl
 from pathlib import Path
 from collections import ChainMap
+
+class EnableCors(object):
+    name = 'enable_cors'
+    api = 2
+
+    def apply(self, fn, context):
+        def _enable_cors(*args, **kwargs):
+            # set CORS headers
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+
+            if bottle.request.method != 'OPTIONS':
+                # actual request; reply with the actual response
+                return fn(*args, **kwargs)
+
+        return _enable_cors
 
 class MyLogger(object):
     def debug(self, msg):
@@ -50,6 +67,8 @@ def q_request():
 
     results = download(url, options)
 
+    response.headers['Content-type'] = 'application/json'
+
     return results
 
 
@@ -91,5 +110,7 @@ print(updateResult["output"])
 print(updateResult["error"])
 
 app_vars = ChainMap(os.environ, app_defaults)
+
+app.install(EnableCors())
 
 app.run(host=app_vars['APP_SERVER_HOST'], port=app_vars['APP_SERVER_PORT'], debug=True)
