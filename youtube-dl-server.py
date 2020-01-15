@@ -9,22 +9,22 @@ import youtube_dl
 from pathlib import Path
 from collections import ChainMap
 
-class EnableCors(object):
-    name = 'enable_cors'
-    api = 2
+# class EnableCors(object):
+#     name = 'enable_cors'
+#     api = 2
 
-    def apply(self, fn, context):
-        def _enable_cors(*args, **kwargs):
-            # set CORS headers
-            response.headers['Access-Control-Allow-Origin'] = '*'
-            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
-            response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+#     def apply(self, fn, context):
+#         def _enable_cors(*args, **kwargs):
+#             # set CORS headers
+#             response.headers['Access-Control-Allow-Origin'] = '*'
+#             response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
+#             response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
 
-            if bottle.request.method != 'OPTIONS':
-                # actual request; reply with the actual response
-                return fn(*args, **kwargs)
+#             if bottle.request.method != 'OPTIONS':
+#                 # actual request; reply with the actual response
+#                 return fn(*args, **kwargs)
 
-        return _enable_cors
+#         return _enable_cors
 
 class MyLogger(object):
     def debug(self, msg):
@@ -45,33 +45,49 @@ app_defaults = {
     'APP_SERVER_PORT': 80,
 }
 
+@app.route('/')
+def root():
+    return static_file('index.html', root='./')
 
 @app.route('/youtube-dl')
 def index():
-    return static_file('index.html', root='./')
 
-
-@app.route('/youtube-dl', method='POST')
-def q_request():
-    url = request.forms.get("url")
-
+    url = request.query['url']
     options = {
-        'format': request.forms.get("format")
+        'format': 'best'
     }
-
     if not url:
-        return {"success": False, "error": "called without a 'url' query param"}
-
-    #print("Requesting information from URL: " + url + ".")
-    #print(options)
-
+            return {"success": False, "error": "called without a 'url' query param"}    
     results = download(url, options)
-
-    response.headers['Content-type'] = 'application/json'
-    response.set_header('Access-Control-Allow-Origin', '*')
-    response.add_header('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
-
     return results
+
+    #return static_file('index.html', root='./')
+
+
+# @app.route('/youtube-dl', method='POST')
+# def q_request():
+#     url = request.forms.get("url")
+
+#     options = {
+#         'format': request.forms.get("format")
+#     }
+
+#     if not url:
+#         return {"success": False, "error": "called without a 'url' query param"}
+
+#     #print("Requesting information from URL: " + url + ".")
+#     #print(options)
+
+#     response.headers['Content-type'] = 'application/json'
+#     response.set_header('Access-Control-Allow-Origin', '*')
+#     response.add_header('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
+
+#     #key = request.get.GET('key')
+#     #if key == "d<54a(2)tHLV[&jS":        
+#     results = download(url, options)
+#     #return results
+#     #    else:
+#     #return {"status": "Access Deny"}
 
 
 @app.route("/youtube-dl/update", method="GET")
@@ -92,10 +108,10 @@ def my_hook(d):
 def download(url, request_options):
     ydl_opts = {
         'format': 'best',
-        'logger': MyLogger(),
-        'forcejson': True,
-        'dump_single_json': True,
-        'progress_hooks': [my_hook],
+        'logger': MyLogger()
+        #'forcejson': True,
+        #'dump_single_json': True,
+        #'progress_hooks': [my_hook],
     }
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -113,6 +129,6 @@ print(updateResult["error"])
 
 app_vars = ChainMap(os.environ, app_defaults)
 
-app.install(EnableCors())
+#app.install(EnableCors())
 
 app.run(host=app_vars['APP_SERVER_HOST'], port=app_vars['APP_SERVER_PORT'], debug=True)

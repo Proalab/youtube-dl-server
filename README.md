@@ -47,7 +47,8 @@ docker rmi $(docker images -q)
 az container create --resource-group Video-Downloader --name video-downloader --location westus --image proalab/youtube-dl-server --dns-name-label video-downloader --ports 80
 ```
 
-
-curl -X POST --data-urlencode "url=https://www.youtube.com/watch?v=Jm-k-RR1n7s" http://api.downloader.apps.proalab.com/youtube-dl/q
-
+##Test with CURL
+```
+curl -X POST --data-urlencode "url=https://www.youtube.com/watch?v=Jm-k-RR1n7s" http://{URL}/youtube-dl
 curl -X POST --data-urlencode "url=https://www.youtube.com/watch?v=Jm-k-RR1n7s" http://0.0.0.0/youtube-dl
+```
