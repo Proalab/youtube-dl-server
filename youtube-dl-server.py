@@ -52,12 +52,18 @@ def root():
 @app.route('/youtube-dl')
 def index():
 
-    url = request.query['url']
-    options = {
-        'format': 'best'
-    }
-    if not url:
-            return {"success": False, "error": "called without a 'url' query param"}    
+    try:
+        url = request.query['url']
+    except:
+        return {"success": False, "error": "called without a 'url' query param"}
+
+    try:
+        options = request.query['options']
+    except:
+        options = {
+            'format': 'best'
+        }
+  
     results = download(url, options)
     return results
 
@@ -101,9 +107,9 @@ def update():
         "error":  error.decode('ascii')
     }
 
-def my_hook(d):
-    if d['status'] == 'finished':
-        print (d)
+# def my_hook(d):
+#     if d['status'] == 'finished':
+#         print (d)
 
 def download(url, request_options):
     ydl_opts = {
@@ -122,7 +128,7 @@ def download(url, request_options):
     return result
 
 
-print("Updating youtube-dl to the newest version")
+print("updating youtube-dl to the newest version...")
 updateResult = update()
 print(updateResult["output"])
 print(updateResult["error"])
