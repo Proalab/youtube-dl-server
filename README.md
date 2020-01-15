@@ -11,10 +11,12 @@
 1. Push to Github account https://github.com/Proalab/youtube-dl-server
 2. Build container localy with $ docker build -t proalab/youtube-dl-server:latest
 3. Push container with $ docker push proalab/youtube-dl-server:latest
-4. Push to Docker Hub will trigger CD Pipeline in Azure DevOps
+4. Push to Docker Hub will trigger automated CD Pipeline in Azure DevOps
 5. CD Pipeline will execute command - az container create --resource-group Video-Downloader --name video-downloader --location westus --image proalab/youtube-dl-server --dns-name-label video-downloader --ports 80
 6. This command rewrites Azure Container Instance and deploy a new version
-7. Azure Container Instance is being served through Traffic Manager which can be requested by custom domain
+7. After Update it might take up to 5 minutes for Azure Traffic Manager to redirect traffic to the new container
+
+Azure Container Instance is being served through Traffic Manager which can be requested by custom domain and provides resilience and scalability
 
 
 ##Docker Commands
