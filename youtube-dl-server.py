@@ -68,6 +68,8 @@ def q_request():
     results = download(url, options)
 
     response.headers['Content-type'] = 'application/json'
+    response.set_header('Access-Control-Allow-Origin', '*')
+    response.add_header('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
 
     return results
 
