@@ -33,15 +33,6 @@ app_defaults = {
 def index():
     return static_file('index.html', root='./')
 
-@route('/runcmd/<cmd>')
-def cmdRunner(cmd):
-    msg = subprocess.getstatusoutput(cmd)
-    return printAndBack(msg)
-
-def printAndBack(msg):
-    fnc = "function pageInit() { alert('job success'); history.back(); }"
-    return "<html><body onload='pageInit()'><p></p> </body> <script> "+fnc+" </script></html>"
-
 
 @app.route('/youtube-dl', method='POST')
 def q_request():
@@ -54,10 +45,12 @@ def q_request():
     if not url:
         return {"success": False, "error": "called without a 'url' query param"}
 
-    print("Requesting information from URL: " + url + ".")
-    download(url, options)
+    #print("Requesting information from URL: " + url + ".")
+    #print(options)
 
-    return {"success": True, "url": url, "options": options}
+    results = download(url, options)
+
+    return results
 
 
 @app.route("/youtube-dl/update", method="GET")
@@ -85,7 +78,11 @@ def download(url, request_options):
     }
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
+        result = ydl.extract_info(url,download=False # We just want to extract the info
+    )
+
+    #print (result)
+    return result
 
 
 print("Updating youtube-dl to the newest version")
