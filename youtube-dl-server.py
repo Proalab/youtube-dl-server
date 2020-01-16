@@ -64,8 +64,12 @@ def index():
             'format': 'best'
         }
   
-    results = download(url, options)
-    return results
+    try:
+        results = download(url, options)
+        return results
+    except Exception as e:
+        #print (e)
+        return {"success": False, "error": str(e)}
 
     #return static_file('index.html', root='./')
 
